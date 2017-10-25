@@ -1,0 +1,3 @@
+{
+  "dbConnectionPath": "mongodb://localhost/questions"
+}

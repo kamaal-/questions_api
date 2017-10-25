@@ -4,13 +4,26 @@
  * by Kamaal ABOOTHALIB <kamaal.aboothalib@gmail.com>
  * for questions_api
  */
+const EventEmitter = require('events')
+    , logger = require('./config/logger')
+    , config = require('./config/config.json')
+    , { connect } = require('./db')
+    , eventEmitter = new EventEmitter()
+    , repo = require('./repos/Questions')
 
-import A from './a'
-class App{
-    constructor(){
-        console.log('Hello')
-        new A()
-    }
-}
+process.on('uncaughtException', (err) => {
+    logger.log('error', err)
+})
 
-new App()
+process.on('uncaughtRejection', (err, promise) => {
+    logger.log('error', err)
+})
+
+connect(config.dbConnectionPath, {useMongoClient: true}, eventEmitter)
+eventEmitter.emit('app.ready')
+eventEmitter.on('db.connected', (mongoose, isConnected) => {
+    logger.log('info', 'DB Connected', {k: isConnected})
+    repo.connect(mongoose).then(d => console.log(d))
+})
+eventEmitter.on('db.connectionError', (error) => {logger.log('info', error)})
+eventEmitter.on('db.connectionClose', (type, message) => logger.log('info',type, message))

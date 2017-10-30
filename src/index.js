@@ -9,7 +9,8 @@ const EventEmitter = require('events')
     , config = require('./config/config.json')
     , { connect } = require('./db')
     , eventEmitter = new EventEmitter()
-    , repo = require('./repos/Questions')
+    , repository = require('./repos/Questions')
+    , server = require('./server/server')
 
 process.on('uncaughtException', (err) => {
     logger.log('error', err)
@@ -23,8 +24,17 @@ connect(config.dbConnectionPath, {useMongoClient: true}, eventEmitter)
 eventEmitter.emit('app.ready')
 eventEmitter.on('db.connected', (mongoose, isConnected) => {
     logger.log('info', 'DB Connected', {k: isConnected})
-    repo.connect(mongoose)
-        .then(d => console.log(d))
+    let _repository = null
+    repository.connect(mongoose)
+        .then(repo => {
+            _repository = repo
+            return server.start({port: 7000, repo})
+        })
+        .then(app => {
+            console.log('Express started at http://localhost:7000')
+            app.on('close', () => _repository.disconnect())
+            setTimeout(() => { app.close() }, 2000)
+        })
 })
 eventEmitter.on('db.connectionError', (error) => {logger.log('info', error)})
 eventEmitter.on('db.connectionClose', (type, message) => logger.log('info',type, message))

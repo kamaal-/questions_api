@@ -14,8 +14,13 @@ const repo = mongoose => {
         return Question.find({}, {})
     }
 
+    const disconnect = () => {
+        mongoose.disconnect()
+    }
+
     return {
-        getAll
+        getAll,
+        disconnect
     }
 }
 

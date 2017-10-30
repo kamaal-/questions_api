@@ -1,3 +1,4 @@
 {
-  "dbConnectionPath": "mongodb://localhost/questions"
+  "dbConnectionPath": "mongodb://localhost/questions",
+  "port" : 3000
 }

@@ -22,19 +22,19 @@ process.on('uncaughtRejection', (err, promise) => {
 
 connect(config.dbConnectionPath, {useMongoClient: true}, eventEmitter)
 eventEmitter.emit('app.ready')
-eventEmitter.on('db.connected', (mongoose, isConnected) => {
+eventEmitter.on('db.connected', (db, isConnected) => {
     logger.log('info', 'DB Connected', {k: isConnected})
     let _repository = null
-    repository.connect(mongoose)
+    repository.connect(db)
         .then(repo => {
             _repository = repo
-            return server.start({port: 7000, repo})
+            return server.start({port: config.port, repo})
         })
         .then(app => {
-            console.log('Express started at http://localhost:7000')
+            console.log(`Express started at http://localhost:${config.port}`)
             app.on('close', () => _repository.disconnect())
-            setTimeout(() => { app.close() }, 2000)
         })
 })
+
 eventEmitter.on('db.connectionError', (error) => {logger.log('info', error)})
 eventEmitter.on('db.connectionClose', (type, message) => logger.log('info',type, message))

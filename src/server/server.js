@@ -8,6 +8,7 @@
 const express = require('express')
     , morgan = require('morgan')
     , helmet = require('helmet')
+    , bodyParser = require('body-parser')
     , questionRouter = require('../routes/')
 
 const start = options => {
@@ -21,8 +22,25 @@ const start = options => {
         }
 
         const app = express()
+
+        /*
+         * HTTP LOGGER
+         */
         app.use(morgan('dev'))
+
+        /*
+         * Security
+         */
         app.use(helmet())
+
+        /*
+         * Body parser
+         */
+        app.use(bodyParser.json())
+        app.use(bodyParser.urlencoded({extended: true}))
+        app.use(bodyParser.text())
+        app.use(bodyParser.json({ type: 'application/json'}))
+
         app.use((err, req, res, next) => {
             reject(new Error('Something went wrong!, err:' + err))
             res.status(500).send('Something went wrong!')

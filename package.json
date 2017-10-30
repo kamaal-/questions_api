@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/kamaal-/questions_api#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "helmet": "^3.9.0",
     "http-status": "^1.0.1",
